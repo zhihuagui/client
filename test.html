@@ -1,0 +1,86 @@
+<html>
+	<head></head>
+	<body>
+		<title>The Test</title>
+		<script src="jquery.js" ></script>
+		
+		<form action='/api/testpost' method='post'> 
+			<input type='text' name='name' value='fred'> 
+			<input type='text' name='tel' value='0926xxx572'> 
+			<input type='submit' value='Submit'> 
+		</form>
+		
+		<input type="file" id='files'/>
+		
+		<script>
+			function hdlFileSelect(evt) {
+				var files = evt.target.files;
+				for (var i=0; i<files.length; i++){
+					var reader = new FileReader();
+					reader.onload = function(e){
+						// var data = e.target.result;
+						$.ajax({
+							url: '/api/upload',
+							type: 'post',
+							dataType: 'text',
+							processData: false,
+							data: e.target.result,
+							success: function(url){
+								console.log(url);
+							},
+						})
+					}
+					reader.readAsArrayBuffer(files[i]);
+				}
+			}
+			document.getElementById('files').onchange = hdlFileSelect;
+		</script>
+		
+		<svg style="width:400px; height:300px">
+			<foreignObject width="300" height="150">
+			<canvas id='canvas' width="300" height="150">
+			</canvas>
+			</foreignObject>
+			<circle cx="60" cy="60" r="50"
+            fill="#0f0"/>
+		</svg>
+		
+		<script type="text/javascript">
+			var cvs = document.getElementById('canvas');
+			var ctx = cvs.getContext('2d');
+			ctx.save();
+			ctx.beginPath();
+			ctx.moveTo(50, 0);
+			ctx.lineTo(80, 150);
+			ctx.lineTo(20, 150);
+			ctx.lineTo(50, 0);
+			ctx.closePath();
+			ctx.clip();
+			ctx.fillStyle = ('#f00');
+			ctx.fill();
+			ctx.restore();
+			
+			function addItem(){
+				ctx.save();
+				ctx.beginPath();
+				ctx.moveTo(80, 80);
+				ctx.lineTo(100, 100);
+				ctx.lineTo(80, 120);
+				ctx.lineTo(60, 100);
+				ctx.closePath();
+				ctx.clip();
+				ctx.fillStyle = '#00f';
+				ctx.fill();
+				ctx.restore();
+			}
+			
+			function setViewBox(){
+				var svg = document.getElementsByTagName('svg')[0];
+				svg.setAttribute('viewBox', "50, 50, 100, 100");
+			}
+		</script>
+		
+		<button onclick="addItem()" >AddRect</button>
+		<button onclick="setViewBox()">ViewBox</button>
+	</body>
+</html>

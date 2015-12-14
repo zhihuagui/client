@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <script type="text/javascript" src='jquery.js'></script>
+    <script type="text/javascript" src='node_modules/requirejs/require.js'></script>
+    <script type="text/javascript">
+        //     require.config({
+    //      paths: {
+    //          echarts: 'echarts-2.2.7/build/dist',
+    //          zrender: 'zrender-2.1.0/src',
+                // qtek: 'qtek/src',
+                // 'echarts-x': 'echarts-x-master/src', 
+    //      }
+    //  });
+    </script>
+	
+	<style type="text/css">
+	#main, #second{
+		float: left;
+	}
+	</style>
+</head>
+
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:400px; width:600px"></div>
+	<div id="second" style="height: 400px; width: 300px"></div>
+    <script type="text/javascript">
+        require.config({
+			packages: [{
+				name: 'echarts',
+				location: 'echarts-2.2.7/src',
+				main: 'echarts'
+			}, {
+				name: 'zrender',
+				location: 'zrender-2.1.0/src',
+				main: 'zrender'
+			}]
+		})
+		function random(){
+			var r = Math.round(Math.random() * 100);
+			return (r * (r % 2 == 0 ? 1 : -1));
+		}
+		
+		function randomDataArray() {
+			var d = [];
+			var len = 100;
+			while (len--) {
+				d.push([
+					random(),
+					random(),
+					Math.abs(random()),
+				]);
+			}
+			return d;
+		}
+		
+		var option = {
+			tooltip : {
+				trigger: 'axis',
+				showDelay : 0,
+				axisPointer:{
+					show: true,
+					type : 'cross',
+					lineStyle: {
+						type : 'dashed',
+						width : 1
+					}
+				}
+			},
+			legend: {
+				data:['scatter1','scatter2']
+			},
+			toolbox: {
+				show : true,
+				feature : {
+					mark : {show: true},
+					dataZoom : {show: true},
+					dataView : {show: true, readOnly: false},
+					restore : {show: true},
+					saveAsImage : {show: true}
+				}
+			},
+			xAxis : [
+				{
+					type : 'value',
+					splitNumber: 4,
+					scale: true
+				}
+			],
+			yAxis : [
+				{
+					type : 'value',
+					splitNumber: 4,
+					scale: true
+				}
+			],
+			series : [
+				{
+					name:'scatter1',
+					type:'scatter',
+					symbol: 'circle',
+					symbolSize: function (value){
+						return Math.round(value[2] / 5);
+					},
+					data: randomDataArray()
+				},
+				{
+					name:'scatter2',
+					type:'scatter',
+					symbol: 'circle',
+					symbolSize: function (value){
+						return Math.round(value[2] / 5);
+					},
+					data: randomDataArray()
+				}
+			]
+		};
+		var genSecOption = function(data){
+			var option = {
+				xAxis : [
+					{
+						type : 'category',
+						data : ['1月','2月','3月']
+					}
+				],
+				yAxis : [
+					{
+						type : 'value'
+					}
+				],
+				series: [{
+					name: 'Test Chart 2',
+					type: 'bar',
+					data: data
+				}]
+			};
+			return option;
+		}
+		requirejs(['echarts/echarts', 'echarts/chart/map', 'echarts/chart/scatter', 'echarts/chart/bar'], function (echarts) {
+			// 基于准备好的dom，初始化echarts图表
+			var myChart = echarts.init(document.getElementById('main'));
+			var secChart = echarts.init(document.getElementById('second'));
+			myChart.setOption(option);
+			
+			var ecConfig = require('echarts/config');
+			myChart.on(ecConfig.EVENT.CLICK, function(param){
+				secChart.setOption(genSecOption(param.data), true);
+			});
+		});
+    </script>
+</body>
+
+</html>
