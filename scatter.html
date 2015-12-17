@@ -140,7 +140,7 @@
 			};
 			return option;
 		}
-		requirejs(['echarts/echarts', 'echarts/chart/map', 'echarts/chart/scatter', 'echarts/chart/bar'], function (echarts) {
+		requirejs(['echarts/echarts', 'echarts/chart/map', 'echarts/chart/scatter', 'echarts/chart/bar',], function (echarts) {
 			// 基于准备好的dom，初始化echarts图表
 			var myChart = echarts.init(document.getElementById('main'));
 			var secChart = echarts.init(document.getElementById('second'));
