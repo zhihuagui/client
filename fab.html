@@ -1,10 +1,20 @@
 <html>
     <head>
-        <script type="text/javascript" src="fabric.min.js"></script>
+        <script type="text/javascript" src="fabric.js"></script>
     </head>
     <body>
-        <canvas id='c' width="400" height="500"></canvas>
+        <div id = 'ctl'>
+            <canvas id='c' width="400" height="500"></canvas>
+        </div>
+        
         <script>
+            var dv = document.getElementById('ctl');
+            dv.onmousewheel = function(event) {
+                var x = event.clientX;
+                var y = event.clientY;
+                var delta = event.wheelDelta / 120;
+                canvas.zoomToPoint({x: x, y: y}, canvas.getZoom() * (1 + 0.1 * delta));
+            }
             var canvas = new fabric.Canvas('c', {
                 backgroundColor: 'rgb(100,100,200)',
             });
