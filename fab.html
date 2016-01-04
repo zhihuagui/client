@@ -11,6 +11,7 @@
             var dv = document.getElementById('ctl');
             var canvas = new fabric.Canvas('c', {
                 backgroundColor: 'rgb(100,100,200)',
+                renderOnAddRemove: false,
             });
             dv.onmousewheel = function(event) {
                 var x = event.layerX;
@@ -18,9 +19,15 @@
                 var delta = event.wheelDelta / 120;
                 canvas.zoomToPoint({x: x, y: y}, canvas.getZoom() * (1 + 0.1 * delta));
             }
+            for(var i=0; i<1000; i++) {
+                canvas.add(new fabric.Rect({
+                    left: Math.random() * 300,
+                    top: Math.random() * 400,
+                    width: 10 + Math.random()*100,
+                    height: 100 + Math.random()*100,
+                    fill: 'yellow'}));
+            }
             canvas.renderAll();
-            var rect = new fabric.Rect({width: 100, height: 200, fill: 'yellow'});
-            canvas.add(rect);
         </script>
     </body>
 </html>
