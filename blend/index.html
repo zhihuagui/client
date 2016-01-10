@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - materials - blending</title>
+		<meta charset="utf-8">
+		<style>
+			body {
+				margin: 0px;
+				/*background-color: #000000;*/
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+        
+        <img src="./UV_Grid_Sm.jpg" style="width:100px; height:100px" />
+        <canvas id='rsz' width="125px" height="125px" style="width:100px; height:100px"></canvas>
+
+		<script src="./three.min.js"></script>
+		<script src="./Detector.js"></script>
+
+		<script>
+            
+            var img = document.getElementsByTagName('img')[0];
+            if (img.complete) {
+                var ctx = document.getElementById('rsz').getContext('2d');
+                ctx.drawImage(img, 0, 0, 125, 125);
+            } else {
+                img.onload = function(){
+                    var ctx = document.getElementById('rsz').getContext('2d');
+                    ctx.drawImage(img, 0, 0, 125, 125);
+                }
+            }
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var camera, scene, renderer;
+			var mesh, mapBg;
+
+			init();
+			animate();
+
+			function init() {
+
+				// CAMERA
+
+				camera = new THREE.PerspectiveCamera( 90, 1, 1, 1000 );
+				camera.position.z = 50;
+
+				// SCENE
+
+				scene = new THREE.Scene();
+
+				// BACKGROUND
+
+				var x = document.createElement( "canvas" );
+				var xc = x.getContext( "2d" );
+				x.width = x.height = 128;
+				xc.fillStyle = "#ddd";
+				xc.fillRect( 0, 0, 128, 128 );
+				xc.fillStyle = "#555";
+				xc.fillRect( 0, 0, 64, 64 );
+				xc.fillStyle = "#999";
+				xc.fillRect( 32, 32, 32, 32 );
+				xc.fillStyle = "#555";
+				xc.fillRect( 64, 64, 64, 64 );
+				xc.fillStyle = "#777";
+				xc.fillRect( 96, 96, 32, 32 );
+
+				mapBg = new THREE.Texture( x );
+				mapBg.wrapS = mapBg.wrapT = THREE.RepeatWrapping;
+				mapBg.repeat.set( 128, 64 );
+				mapBg.needsUpdate = true;
+
+				/*
+				var mapBg = THREE.ImageUtils.loadTexture( "textures/disturb.jpg" );
+				mapBg.wrapS = mapBg.wrapT = THREE.RepeatWrapping;
+				mapBg.repeat.set( 8, 4 );
+				*/
+
+				var materialBg = new THREE.MeshBasicMaterial( { map: mapBg } );
+
+				var meshBg = new THREE.Mesh( new THREE.PlaneBufferGeometry( 4000, 2000 ), materialBg );
+				meshBg.position.set( 0, 0, -1 );
+				scene.add( meshBg );
+
+				// OBJECTS
+
+				var blendings = [ "NoBlending"];
+
+				var map0 = THREE.ImageUtils.loadTexture( './UV_Grid_Sm.jpg' );
+				var map1 = THREE.ImageUtils.loadTexture( './sprite0.jpg' );
+
+				var geo1 = new THREE.PlaneBufferGeometry( 100, 100 );
+				var geo2 = new THREE.PlaneBufferGeometry( 100, 25 );
+                var geo3 = new THREE.PlaneBufferGeometry( 200, 200 );
+
+				addImageRow( map0, 0 );
+				// addImageRow( map1, 0 );
+
+				function addImageRow( map, y ) {
+
+					for ( var i = 0; i < blendings.length; i ++ ) {
+
+						var blending = blendings[ i ];
+
+						var material = new THREE.MeshBasicMaterial( { map: map } );
+						material.transparent = true;
+						material.blending = THREE[ blending ];
+
+						// var x = ( i - blendings.length / 2 ) * 110;
+                        var x = 0;
+						var z = 0;
+
+						var mesh = new THREE.Mesh( geo1, material );
+						mesh.position.set( x, y, z );
+						scene.add( mesh );
+
+                        setTimeout(function(){
+                            var nmesh = mesh;
+                            return function(){
+                                nmesh.geometry = geo3;
+                                camera.aspect = 1;
+                                camera.position.z = 100;
+                                renderer.setSize(100, 200);
+                                img.style.height = '200px';
+                            }
+                        }(), 2000);
+
+					}
+
+				}
+
+				// RENDERER
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( 100, 100 );
+				document.body.appendChild( renderer.domElement );
+
+				// EVENTS
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			//
+
+			function onWindowResize( event ) {
+
+				var SCREEN_WIDTH = window.innerWidth;
+				var SCREEN_HEIGHT = window.innerHeight;
+
+				// renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+
+				camera.aspect = 1//SCREEN_WIDTH / SCREEN_HEIGHT;
+				camera.updateProjectionMatrix();
+
+			}
+
+
+			function generateLabelMaterial( text ) {
+
+				var x = document.createElement( "canvas" );
+				var xc = x.getContext( "2d" );
+				x.width = 128;
+				x.height = 32;
+
+				xc.fillStyle = "rgba( 0, 0, 0, 0.95 )";
+				xc.fillRect( 0, 0, 128, 32 );
+
+				xc.fillStyle = "white";
+				xc.font = "12pt arial bold";
+				xc.fillText( text, 10, 22 );
+
+				var map = new THREE.Texture( x );
+				map.needsUpdate = true;
+
+				var material = new THREE.MeshBasicMaterial( { map: map, transparent: true } );
+				return material;
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				
+				var time = Date.now() * 0.00025;
+				var ox = ( time * -0.01 * mapBg.repeat.x ) % 1;
+				var oy = ( time * -0.01 * mapBg.repeat.y ) % 1;
+
+				mapBg.offset.set( ox, oy );
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>

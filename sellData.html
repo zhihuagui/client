@@ -14,12 +14,21 @@
     		}
     	});
     </script>
+    <link href="multiFilter.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
     <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id='filter'></div>
     <div id="main" style="height:700px; width:900px"></div>
     <script type="text/javascript" src='sellDataShow.js'></script>
+    <script type="text/javascript" src="multiFilter.js"></script>
+    <script>
+        var x = new MultiFilter($('#filter'), params);
+        x.onChange = function(params){
+            console.log(params);
+        }
+    </script>
 </body>
 
 </html>
